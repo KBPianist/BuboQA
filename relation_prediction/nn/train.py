@@ -15,6 +15,7 @@ args = get_args()
 
 # Set random seed for reproducibility
 if args.seed >= 0:
+    print("seed: {}".format(args.seed))
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
     random.seed(args.seed)
