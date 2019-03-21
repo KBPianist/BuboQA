@@ -14,14 +14,15 @@ np.set_printoptions(threshold=np.nan)
 args = get_args()
 
 # Set random seed for reproducibility
-# torch.manual_seed(args.seed)
-# np.random.seed(args.seed)
-# random.seed(args.seed)
-# torch.backends.cudnn.deterministic = True
+torch.manual_seed(args.seed)
+np.random.seed(args.seed)
+random.seed(args.seed)
+torch.backends.cudnn.deterministic = True
 
 device = torch.device("cpu")
 if args.cuda:
     device = torch.device("cuda", args.gpu)
+    torch.cuda.manual_seed(args.seed)
 print("Using device: {}".format(device))
 
 # if not args.cuda:
@@ -29,7 +30,6 @@ print("Using device: {}".format(device))
 # if torch.cuda.is_available() and args.cuda:
 #     print("Note: You are using GPU for training")
 #     torch.cuda.set_device(args.gpu)
-#     # torch.cuda.manual_seed(args.seed)
 # if torch.cuda.is_available() and not args.cuda:
 #     print("Warning: You have Cuda but not use it. You are using CPU for training.")
 
