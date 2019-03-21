@@ -44,7 +44,7 @@ test_iter = data.Iterator(test, batch_size=args.batch_size, device=device, train
                                    sort=False, shuffle=False)
 
 # load the model
-model = torch.load(args.trained_model, map_location=lambda storage)
+model = torch.load(args.trained_model)
 model = model.to(device)
 
 print(model)
