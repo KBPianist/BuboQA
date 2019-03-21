@@ -14,19 +14,24 @@ np.set_printoptions(threshold=np.nan)
 args = get_args()
 
 # Set random seed for reproducibility
-torch.manual_seed(args.seed)
-np.random.seed(args.seed)
-random.seed(args.seed)
-torch.backends.cudnn.deterministic = True
+# torch.manual_seed(args.seed)
+# np.random.seed(args.seed)
+# random.seed(args.seed)
+# torch.backends.cudnn.deterministic = True
 
-if not args.cuda:
-    args.gpu = -1
-if torch.cuda.is_available() and args.cuda:
-    print("Note: You are using GPU for training")
-    torch.cuda.set_device(args.gpu)
-    torch.cuda.manual_seed(args.seed)
-if torch.cuda.is_available() and not args.cuda:
-    print("Warning: You have Cuda but not use it. You are using CPU for training.")
+device = torch.device("cpu")
+if args.cuda:
+    device = torch.device("cuda", args.gpu)
+print("Using device: {}".format(device))
+
+# if not args.cuda:
+#     args.gpu = -1
+# if torch.cuda.is_available() and args.cuda:
+#     print("Note: You are using GPU for training")
+#     torch.cuda.set_device(args.gpu)
+#     # torch.cuda.manual_seed(args.seed)
+# if torch.cuda.is_available() and not args.cuda:
+#     print("Warning: You have Cuda but not use it. You are using CPU for training.")
 
 # Set up the data for training
 TEXT = data.Field(lower=True)
@@ -53,11 +58,11 @@ else:
 
 print("Embedding match number {} out of {}".format(match_embedding, len(TEXT.vocab)))
 
-train_iter = data.Iterator(train, batch_size=args.batch_size, device=args.gpu, train=True, repeat=False,
+train_iter = data.Iterator(train, batch_size=args.batch_size, device=device, train=True, repeat=False,
                                    sort=False, shuffle=True, sort_within_batch=False)
-dev_iter = data.Iterator(dev, batch_size=args.batch_size, device=args.gpu, train=False, repeat=False,
+dev_iter = data.Iterator(dev, batch_size=args.batch_size, device=device, train=False, repeat=False,
                                    sort=False, shuffle=False, sort_within_batch=False)
-test_iter = data.Iterator(test, batch_size=args.batch_size, device=args.gpu, train=False, repeat=False,
+test_iter = data.Iterator(test, batch_size=args.batch_size, device=device, train=False, repeat=False,
                                    sort=False, shuffle=False, sort_within_batch=False)
 
 config = args
@@ -70,10 +75,11 @@ else:
     print("Error Dataset")
     exit()
 
-model.embed.weight.data.copy_(TEXT.vocab.vectors)
-if args.cuda:
-    model = model.to(torch.device("cuda:{}".format(args.gpu)))
-    print("Shift model to GPU")
+# model.embed.weight.data.copy_(TEXT.vocab.vectors)
+# if args.cuda:
+#     model = model.to(torch.device("cuda:{}".format(args.gpu)))
+#     print("Shift model to GPU")
+model = model.to(device)
 
 print(config)
 print("VOCAB num",len(TEXT.vocab))
