@@ -12,18 +12,22 @@ np.set_printoptions(threshold=np.nan)
 args = get_args()
 
 # Set random seed for reproducibility
-torch.manual_seed(args.seed)
-np.random.seed(args.seed)
-random.seed(args.seed)
+# torch.manual_seed(args.seed)
+# np.random.seed(args.seed)
+# random.seed(args.seed)
 
-if not args.cuda:
-    args.gpu = -1
-if torch.cuda.is_available() and args.cuda:
-    print("Note: You are using GPU for training")
-    torch.cuda.set_device(args.gpu)
-    torch.cuda.manual_seed(args.seed)
-if torch.cuda.is_available() and not args.cuda:
-    print("Warning: You have Cuda but not use it. You are using CPU for training.")
+device = torch.device("cpu")
+if args.cuda:
+    device = torch.device("cuda", args.gpu)
+print("Using device: {}".format(device))
+# if not args.cuda:
+#     args.gpu = -1
+# if torch.cuda.is_available() and args.cuda:
+#     print("Note: You are using GPU for training")
+#     torch.cuda.set_device(args.gpu)
+#     torch.cuda.manual_seed(args.seed)
+# if torch.cuda.is_available() and not args.cuda:
+#     print("Warning: You have Cuda but not use it. You are using CPU for training.")
 
 TEXT = data.Field(lower=True)
 RELATION = data.Field(sequential=False)
@@ -32,15 +36,16 @@ train, dev, test = SQdataset.splits(TEXT, RELATION, args.data_dir)
 TEXT.build_vocab(train, dev, test)
 RELATION.build_vocab(train, dev)
 
-train_iter = data.Iterator(train, batch_size=args.batch_size, device=args.gpu, train=True, repeat=False,
+train_iter = data.Iterator(train, batch_size=args.batch_size, device=device, train=True, repeat=False,
                                    sort=False, shuffle=True)
-dev_iter = data.Iterator(dev, batch_size=args.batch_size, device=args.gpu, train=False, repeat=False,
+dev_iter = data.Iterator(dev, batch_size=args.batch_size, device=device, train=False, repeat=False,
                                    sort=False, shuffle=False)
-test_iter = data.Iterator(test, batch_size=args.batch_size, device=args.gpu, train=False, repeat=False,
+test_iter = data.Iterator(test, batch_size=args.batch_size, device=device, train=False, repeat=False,
                                    sort=False, shuffle=False)
 
 # load the model
-model = torch.load(args.trained_model, map_location=lambda storage,location: storage.cuda(args.gpu))
+model = torch.load(args.trained_model, map_location=lambda storage)
+model = model.to(device)
 
 print(model)
 
