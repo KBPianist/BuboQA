@@ -14,15 +14,17 @@ np.set_printoptions(threshold=np.nan)
 args = get_args()
 
 # Set random seed for reproducibility
-torch.manual_seed(args.seed)
-np.random.seed(args.seed)
-random.seed(args.seed)
-torch.backends.cudnn.deterministic = True
+if args.seed >= 0:
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
+    random.seed(args.seed)
+    torch.backends.cudnn.deterministic = True
 
 device = torch.device("cpu")
 if args.cuda:
     device = torch.device("cuda", args.gpu)
-    torch.cuda.manual_seed(args.seed)
+    if args.seed >= 0:
+        torch.cuda.manual_seed(args.seed)
 print("Using device: {}".format(device))
 
 # if not args.cuda:
